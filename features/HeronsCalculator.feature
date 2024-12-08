@@ -5,5 +5,8 @@ So that I can chat with my math friends like a pro
 
 Scenario: I can calculate the area of a triangle
     Given I open the url "https://byjus.com/herons-calculator/"
-    # write your steps here
-
+    When I set the element with id "a" to "6"
+    When I set the element with id "b" to "6"
+    When I set the element with id "c" to "6"
+    When I click the element with id "clcbtn"
+    Then the element with id "_d" should contain text "15.588"
