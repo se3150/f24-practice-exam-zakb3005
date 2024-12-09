@@ -1,34 +1,27 @@
 name: CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  unit-tests:
+  RunUnitTests:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install dependencies
+      - name: Install pytest and deps
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-describe pytest-spec pytest-mock
-      - name: Run unit tests
+          pip install pytest pytest-spec pytest-describe pytest-mock
+      - name: Run pytest
         run: pytest --spec
 
-  functional-tests:
+  RunFunctionalTests:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -36,11 +29,22 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install chromedriver
-        uses: nanasess/setup-chromedriver@master
-      
-      - name: Install behave
-        run: pip install behave behave-webdriver
+      - name: Install Chrome and ChromeDriver
+        run: |
+          sudo apt-get update
+          # Install Chromium and ChromeDriver
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+
+      - name: Install behave and behave-webdriver
+        run: |
+          pip install --upgrade pip
+          pip install behave behave-webdriver selenium
+
+      - name: Check versions
+        run: |
+          chromium-browser --version
+          chromedriver --version
+          python -m pip show behave behave-webdriver selenium
 
       - name: Run functional tests
         run: behave
