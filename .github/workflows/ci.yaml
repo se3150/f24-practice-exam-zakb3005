@@ -1,27 +1,34 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  RunUnitTests:
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install pytest and deps
+
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-spec pytest-describe pytest-mock
-      - name: Run pytest
+          pip install pytest pytest-describe pytest-spec pytest-mock
+      - name: Run unit tests
         run: pytest --spec
 
-  RunFunctionalTests:
+  functional-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -29,22 +36,23 @@ jobs:
         with:
           python-version: '3.10'
 
+      # Install Chrome/Chromium and ChromeDriver
       - name: Install Chrome and ChromeDriver
         run: |
           sudo apt-get update
-          # Install Chromium and ChromeDriver
           sudo apt-get install -y chromium-browser chromium-chromedriver
 
-      - name: Install behave and behave-webdriver
+      # Pin versions of behave-webdriver and selenium
+      - name: Install behave and webdriver
         run: |
           pip install --upgrade pip
-          pip install behave behave-webdriver selenium
+          pip install behave==1.2.7 behave-webdriver==1.4.0 selenium==4.6.0
 
-      - name: Check versions
+      # Just in case, clear problematic environment variables if any
+      - name: Clear Env Vars
         run: |
-          chromium-browser --version
-          chromedriver --version
-          python -m pip show behave behave-webdriver selenium
+          unset SELENIUM_REMOTE_URL || true
+          unset BROWSER || true
 
       - name: Run functional tests
         run: behave
