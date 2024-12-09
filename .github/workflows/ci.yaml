@@ -1,58 +1,25 @@
-name: CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+name: Run Tests
+on: [push]
 
 jobs:
-  unit-tests:
+  RunUnitTests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install pytest
+        run: pip install pytest pytest-spec pytest-describe pytest-mock
+      - name: Run pytest
+        run: pytest --spec --color=yes test_battery.py
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install pytest pytest-describe pytest-spec pytest-mock
-      - name: Run unit tests
-        run: pytest --spec
-
-  functional-tests:
+  RunFunctionalTests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # Install Chrome/Chromium and ChromeDriver
-      - name: Install Chrome and ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-
-      # Pin versions of behave-webdriver and selenium
-      - name: Install behave and webdriver
-        run: |
-          pip install --upgrade pip
-          pip install behave==1.2.7 behave-webdriver==1.4.0 selenium==4.6.0
-
-      # Just in case, clear problematic environment variables if any
-      - name: Clear Env Vars
-        run: |
-          unset SELENIUM_REMOTE_URL || true
-          unset BROWSER || true
-
-      - name: Run functional tests
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install chromedriver
+        uses: nanasess/setup-chromedriver@master
+      - name: Install behave
+        run: pip install behave behave-webdriver selenium
+      - name: Run behave
         run: behave
