@@ -8,5 +8,5 @@ Scenario: I can calculate the area of a triangle
   When I set "6" to the inputfield "#a"
   When I set "6" to the inputfield "#b"
   When I set "6" to the inputfield "#c"
-  When I click on the element "#clcbtn"
+  When I click on the element ".clcbtn"
   Then I expect that element "#_d" contains the text "15.588"
